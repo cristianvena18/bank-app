@@ -1,0 +1,15 @@
+{
+   "type": "onion",
+   "cqrs": true,
+   "adapterPath": "src/Presentation/Http/Adapters/",
+   "commandHandlerPath": "src/Application/Commands/Handler/",
+   "commandInputPath": "src/Application/Commands/Command/",
+   "controllerPath": "src/Presentation/Http/Actions/",
+   "database": "MySql",
+   "modelPath": "src/Domain/Entities/",
+   "repositoryInterfacePath": "src/Domain/Interfaces/Repositories/",
+   "repositoryPath": "src/Infrastructure/Persistence/Repositories/",
+   "shouldCreateQueryResult": true,
+   "shouldCreateRepositoryInterface": true,
+   "diPath": "src/Infrastructure/DI/di.config.ts"
+}
