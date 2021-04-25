@@ -14,6 +14,12 @@ export class GetCustomerPresenter {
           status: account.getStatus().toString(),
           balance: account.getBalance().getAmount().toString(),
           currency: account.getCurrency().toString(),
+          employee: {
+            id: account.getEmployee().getId().toString(),
+          },
+          branch: {
+            id: account.getBranch().getId().toString(),
+          },
         })),
     };
   }

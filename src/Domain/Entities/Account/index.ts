@@ -18,9 +18,9 @@ export class Account extends AggregateRoot {
   private status: AccountStatus;
   private balance: Money;
   private currency: Currency;
-  public customer: Customer;
-  public employee: Employee;
-  public branch: Branch;
+  private customer: Customer;
+  private employee: Employee;
+  private branch: Branch;
 
   private constructor(
     id: AccountUuid,
@@ -128,5 +128,13 @@ export class Account extends AggregateRoot {
     );
 
     return account;
+  }
+
+  public getEmployee() {
+    return this.employee;
+  }
+
+  public getBranch() {
+    return this.branch;
   }
 }

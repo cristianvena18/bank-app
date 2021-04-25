@@ -21,11 +21,23 @@ export default class MySqlCustomerRepository
     this.initialize(CustomerModel);
     const queryBuilder = this.repository.createQueryBuilder("customer");
 
-    queryBuilder.leftJoinAndSelect(
-      "customer.accounts",
-      "accounts",
-      "accounts.customerId = customer.id"
-    );
+    queryBuilder
+      .leftJoinAndSelect(
+        "customer.accounts",
+        "accounts",
+        "accounts.customerId = customer.id"
+      )
+      .leftJoinAndSelect(
+        "accounts.employee",
+        "employee",
+        "accounts.employeeId = employee.id"
+      )
+      .leftJoinAndSelect(
+        "accounts.branch",
+        "branch",
+        "accounts.branchId = branch.id"
+      );
+
     queryBuilder.andWhere("customer.id = :id", { id });
 
     const data = await queryBuilder.getOne();

@@ -1,7 +1,9 @@
 import { EntitySchema } from "typeorm";
+import { AccountDTO } from "./Account";
 
 export interface BranchDTO {
   id: string;
+  accounts: AccountDTO[];
 }
 
 export const BranchModel = new EntitySchema<BranchDTO>({
@@ -10,6 +12,13 @@ export const BranchModel = new EntitySchema<BranchDTO>({
     id: {
       type: String,
       primary: true,
+    },
+  },
+  relations: {
+    accounts: {
+      type: "one-to-many",
+      target: "accounts",
+      inverseSide: "branch",
     },
   },
 });
