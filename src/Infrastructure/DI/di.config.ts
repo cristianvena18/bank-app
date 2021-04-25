@@ -1,3 +1,6 @@
+import GetCustomerHandler from "../../Application/Queries/Handler/Customer/GetHandler";
+import GetCustomerAdapter from "../../Presentation/Http/Adapters/Customer/GetAdapter";
+import GetCustomerAction from "../../Presentation/Http/Actions/Customer/GetAction";
 import MySqlEmployeeRepository from "../../Infrastructure/Persistence/Repositories/MySqlEmployeeRepository";
 import { EmployeeRepository } from "../../Domain/Interfaces/Repositories/EmployeeRepository";
 import MySqlBranchRepository from "../../Infrastructure/Persistence/Repositories/MySqlBranchRepository";
@@ -22,19 +25,24 @@ import RabbitMqEventbus from "../EventBus/Providers/RabbitMqServiceProvider";
 import RabbitMqConfig, {
   RabbitMqConnectionConfig,
 } from "../EventBus/Providers/RabbitMqConfig";
+import { CustomerRoutes } from "../../Presentation/Http/Routes/customer";
 
 const DIContainer = new Container();
 
 DIContainer.bind(Router).toSelf();
 DIContainer.bind(AccountRoutes).toSelf();
+DIContainer.bind(CustomerRoutes).toSelf();
 
 //Actions
+DIContainer.bind(GetCustomerAction).toSelf();
 DIContainer.bind(StoreAccountAction).toSelf();
 
 //Adapters
+DIContainer.bind(GetCustomerAdapter).toSelf();
 DIContainer.bind(StoreAccountAdapter).toSelf();
 
 //Handlers
+DIContainer.bind(GetCustomerHandler).toSelf();
 DIContainer.bind(StoreAccountHandler).toSelf();
 
 //Services

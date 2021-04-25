@@ -8,6 +8,8 @@ import { AccountNumber } from "./AccountNumber";
 import { AggregateRoot } from "../../ValueObjects/AggregateRoot";
 import { AccountType } from "./AccountType";
 import { AccountStatus } from "./AccountStatus";
+import { AccountOpened } from "../../Events/AccountOpened";
+import { Uuid } from "../../ValueObjects/Uuid";
 
 export class Account extends AggregateRoot {
   private id: AccountUuid;
@@ -65,19 +67,35 @@ export class Account extends AggregateRoot {
       new AccountType(data.type),
       new AccountStatus(data.status),
       currency,
-      new Money(data.balance, currency),
-      Customer.fromPrimitives(data.customer),
-      Employee.fromPrimitives(data.employee),
-      Branch.fromPrimitives(data.branch)
+      new Money(parseInt(data.balance), currency),
+      data.customer ? Customer.fromPrimitives(data.customer) : undefined,
+      data.employee ? Employee.fromPrimitives(data.employee) : undefined,
+      data.branch ? Branch.fromPrimitives(data.branch) : undefined
     );
-  }
-
-  getRelations(): string[] {
-    return ["customer", "employee", "branch"];
   }
 
   getId() {
     return this.id;
+  }
+
+  getNumber() {
+    return this.number;
+  }
+
+  getType() {
+    return this.type;
+  }
+
+  getStatus() {
+    return this.status;
+  }
+
+  getBalance() {
+    return this.balance;
+  }
+
+  getCurrency() {
+    return this.currency;
   }
 
   static create(
@@ -87,8 +105,9 @@ export class Account extends AggregateRoot {
     branch: Branch,
     employee: Employee
   ) {
-    return new Account(
-      new AccountUuid(AccountUuid.random().value),
+    const id = new AccountUuid(AccountUuid.random().value);
+    const account = new Account(
+      id,
       new AccountNumber(""), // TODO: generate account number
       new AccountType(type),
       new AccountStatus(AccountStatus.ACCOUNT_STATUS.OPEN),
@@ -98,5 +117,16 @@ export class Account extends AggregateRoot {
       employee,
       branch
     );
+
+    account.record(
+      new AccountOpened({
+        branchId: branch.getId().toString(),
+        accountId: id.toString(),
+        eventId: Uuid.random().value,
+        occurredOn: new Date(),
+      })
+    );
+
+    return account;
   }
 }

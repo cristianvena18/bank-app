@@ -65,8 +65,6 @@ class StoreHandler {
       throw new EntityNotFoundException("default", "Employee not found");
     }
 
-    console.log("creating account");
-
     const account = Account.create(
       command.getType(),
       command.getCurrency(),
@@ -75,18 +73,9 @@ class StoreHandler {
       employee
     );
 
-    console.info("account created");
-
     await this.accountRepository.persist(account);
 
-    await this.eventBus.publish([
-      new AccountOpened({
-        branchId: branch.getId().value,
-        accountId: account.getId().value,
-        eventId: Uuid.random().value,
-        occurredOn: new Date(),
-      }),
-    ]);
+    await this.eventBus.publish(account.pullDomainEvents());
   }
 }
 

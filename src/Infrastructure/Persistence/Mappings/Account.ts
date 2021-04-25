@@ -42,14 +42,17 @@ export const AccountModel = new EntitySchema<AccountDTO>({
     customer: {
       type: "many-to-one",
       target: "customers",
+      joinColumn: true,
     },
     employee: {
       type: "many-to-one",
       target: "employees",
+      joinColumn: true,
     },
     branch: {
       type: "many-to-one",
       target: "branches",
+      joinColumn: true,
     },
   },
 });

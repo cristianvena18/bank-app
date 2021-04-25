@@ -30,6 +30,7 @@ export const CustomerModel = new EntitySchema<CustomerDTO>({
     accounts: {
       type: "one-to-many",
       target: "accounts",
+      inverseSide: "customer",
     },
   },
 });

@@ -19,7 +19,17 @@ export default class MySqlCustomerRepository
 
   public async findOneById(id: string): Promise<Customer> {
     this.initialize(CustomerModel);
-    const data = await this.repository.findOne(id);
+    const queryBuilder = this.repository.createQueryBuilder("customer");
+
+    queryBuilder.leftJoinAndSelect(
+      "customer.accounts",
+      "accounts",
+      "accounts.customerId = customer.id"
+    );
+    queryBuilder.andWhere("customer.id = :id", { id });
+
+    const data = await queryBuilder.getOne();
+
     if (data) {
       return Customer.fromPrimitives(data);
     }

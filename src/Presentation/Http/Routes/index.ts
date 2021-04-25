@@ -1,14 +1,24 @@
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import { inject, injectable } from "inversify";
 import { AccountRoutes } from "./accounts";
+import { CustomerRoutes } from "./customer";
+import { asyncMiddleware } from "../Middlewares/AsyncMiddleware";
+import GetAction from "../Actions/Customer/GetAction";
 
 @injectable()
 class PublicRoutes {
   private router: Router;
   private accountRoutes: AccountRoutes;
-  constructor(@inject(AccountRoutes) accountRoutes: AccountRoutes) {
+  private customerRoutes: CustomerRoutes;
+
+  constructor(
+    @inject(AccountRoutes) accountRoutes: AccountRoutes,
+    @inject(CustomerRoutes) customerRoutes: CustomerRoutes,
+    @inject(GetAction) private getAction: GetAction
+  ) {
     this.router = Router();
     this.accountRoutes = accountRoutes;
+    this.customerRoutes = customerRoutes;
     this.setRoutes();
   }
 
@@ -17,6 +27,7 @@ class PublicRoutes {
   }
 
   private setRoutes() {
+    this.router.use("/customers", this.customerRoutes.getRoutes());
     this.router.use("/accounts", this.accountRoutes.getRoutes());
   }
 }

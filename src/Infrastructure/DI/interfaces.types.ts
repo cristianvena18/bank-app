@@ -8,4 +8,5 @@ export const INTERFACES = {
   AccountRepository: Symbol.for("AccountRepository"),
   EventBus: Symbol.for("EventBus"),
   RabbitMqConfig: Symbol.for("RabbitMqConfig"),
+  TokenService: Symbol.for("TokenService"),
 };
