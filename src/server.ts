@@ -10,9 +10,7 @@ class Server {
 
   constructor() {
     this.express = express();
-
-    this.app = DIContainer.resolve<App>(App);
-
+    this.app = new App();
     this.app.upServer(this.express);
 
     const PORT = process.env.PORT || 3002;

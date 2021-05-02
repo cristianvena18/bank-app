@@ -27,3 +27,5 @@ export class CustomerRoutes {
     return this.router;
   }
 }
+
+export default CustomerRoutes;

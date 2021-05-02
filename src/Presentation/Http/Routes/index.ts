@@ -1,9 +1,7 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
 import { inject, injectable } from "inversify";
 import { AccountRoutes } from "./accounts";
 import { CustomerRoutes } from "./customer";
-import { asyncMiddleware } from "../Middlewares/AsyncMiddleware";
-import GetAction from "../Actions/Customer/GetAction";
 
 @injectable()
 class PublicRoutes {
@@ -13,8 +11,7 @@ class PublicRoutes {
 
   constructor(
     @inject(AccountRoutes) accountRoutes: AccountRoutes,
-    @inject(CustomerRoutes) customerRoutes: CustomerRoutes,
-    @inject(GetAction) private getAction: GetAction
+    @inject(CustomerRoutes) customerRoutes: CustomerRoutes
   ) {
     this.router = Router();
     this.accountRoutes = accountRoutes;

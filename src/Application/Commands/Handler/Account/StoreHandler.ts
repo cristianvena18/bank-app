@@ -8,8 +8,6 @@ import { CustomerRepository } from "../../../../Domain/Interfaces/Repositories/C
 import { BranchRepository } from "../../../../Domain/Interfaces/Repositories/BranchRepository";
 import { EmployeeRepository } from "../../../../Domain/Interfaces/Repositories/EmployeeRepository";
 import { EventBus } from "../../../../Domain/Interfaces/EventBus";
-import { AccountOpened } from "../../../../Domain/Events/AccountOpened";
-import { Uuid } from "../../../../Domain/ValueObjects/Uuid";
 
 @injectable()
 class StoreHandler {

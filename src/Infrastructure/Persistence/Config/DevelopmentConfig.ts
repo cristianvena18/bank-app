@@ -9,7 +9,7 @@ export const DevelopmentConfig = (): ConnectionOptions => ({
   password: ConfigVariables().db_password,
   database: ConfigVariables().db_database,
   synchronize: true,
-  logging: true,
+  logging: false,
   migrations: ["./dist/Infrastructure/Persistence/Migrations/*.js"],
   migrationsTableName: "migrations",
   migrationsRun: true,

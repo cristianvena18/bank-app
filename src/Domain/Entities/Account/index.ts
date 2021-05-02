@@ -120,7 +120,6 @@ export class Account extends AggregateRoot {
 
     account.record(
       new AccountOpened({
-        branchId: branch.getId().toString(),
         accountId: id.toString(),
         eventId: Uuid.random().value,
         occurredOn: new Date(),

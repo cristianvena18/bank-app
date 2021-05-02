@@ -6,6 +6,18 @@ type RabbitMqConfig = {
   exchange: string;
 };
 
+export class RabbitMqConfigFactory {
+  static createConfig(): RabbitMqConfig {
+    return {
+      exchange: "",
+      host: "",
+      password: "",
+      queue: "",
+      user: "",
+    };
+  }
+}
+
 export const RabbitMqConnectionConfig: RabbitMqConfig = {
   exchange: "",
   host: "",
