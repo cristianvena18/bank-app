@@ -2,6 +2,7 @@ import { inject, injectable } from "inversify";
 import { LoggerService } from "../../../Domain/Interfaces/Services/LoggerService";
 import { createLogger, format, Logger, transports } from "winston";
 import { LogLevels } from "../../../Domain/Enums/LogLevels";
+import LogStash from 'winston3-logstash-transport'
 
 /**
  * A simple logger that allow multiple transports
@@ -10,9 +11,13 @@ import { LogLevels } from "../../../Domain/Enums/LogLevels";
 export class WinstonLoggerService implements LoggerService {
   private logger: Logger;
 
-  private readonly logFormatCommon = format.printf(function (info): string {
+  private readonly logFormatCommon = format.printf(function (info): any {
     const date = new Date().toISOString();
-    return `[${date}] [${info.level}]: ${info.message}`;
+    return {
+      name: 'Log',
+      level: info.level,
+      message: info.message,
+    };
   });
 
   public constructor() {
@@ -26,6 +31,7 @@ export class WinstonLoggerService implements LoggerService {
         //
         new transports.File({ filename: "logs/error.log", level: "error" }),
         new transports.File({ filename: "logs/info.log" }),
+        new LogStash({mode: 'udp', host: 'logstash', port: '5000'})
       ],
     });
 

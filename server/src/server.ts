@@ -2,13 +2,17 @@
 import "reflect-metadata";
 import App from "./App";
 import express, { Application } from "express";
-import DIContainer from "./Infrastructure/DI/di.config";
+import apm from 'elastic-apm-node'
 
 class Server {
   private express: Application;
   private app: App;
 
   constructor() {
+    apm.start({
+      serviceName: 'Server',
+      serverUrl: "http://elastic:changeme@apm-server:8200",
+    })
     this.express = express();
     this.app = new App();
     this.app.upServer(this.express);
