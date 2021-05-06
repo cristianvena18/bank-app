@@ -13,11 +13,12 @@ export class WinstonLoggerService implements LoggerService {
 
   private readonly logFormatCommon = format.printf(function (info): any {
     const date = new Date().toISOString();
-    return {
+    return JSON.stringify({
       name: 'Log',
       level: info.level,
       message: info.message,
-    };
+      timestamp: date
+    });
   });
 
   public constructor() {
@@ -31,7 +32,7 @@ export class WinstonLoggerService implements LoggerService {
         //
         new transports.File({ filename: "logs/error.log", level: "error" }),
         new transports.File({ filename: "logs/info.log" }),
-        new LogStash({mode: 'udp', host: 'logstash', port: '5000'})
+        new LogStash({mode: 'udp', host: 'logstash', port: '5044', format: format.logstash() })
       ],
     });
 
@@ -42,7 +43,7 @@ export class WinstonLoggerService implements LoggerService {
     if (process.env.NODE_ENV !== "production") {
       this.logger.add(
         new transports.Console({
-          format: this.logFormatCommon,
+          format: format.printf((info): string => `${info.level} ${info.message}`),
         })
       );
     }
