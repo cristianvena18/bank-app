@@ -1,6 +1,12 @@
 import BaseHttpException from "./BaseHttpException";
 
 export default class NotFoundException extends BaseHttpException {
+  static fromError(e: Error, NOT_FOUND: number, code: string, href: string): NotFoundException {
+    const error = new NotFoundException(e.message, NOT_FOUND, code, href);
+    error.stack = e.stack;
+    return error;
+  }
+  
   public constructor(
     message: string,
     status: number,

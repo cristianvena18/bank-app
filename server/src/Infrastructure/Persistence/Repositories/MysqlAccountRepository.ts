@@ -40,7 +40,7 @@ export default class MysqlAccountRepository
 
   async findOneById(id: string): Promise<Account> {
     this.initialize(AccountModel);
-    const data = await this.repository.findOne(id);
+    const data = await this.repository.findOne(id, { relations: ['customer', 'branch', 'employee'] });
     if (data) {
       return Account.fromPrimitives(data);
     }

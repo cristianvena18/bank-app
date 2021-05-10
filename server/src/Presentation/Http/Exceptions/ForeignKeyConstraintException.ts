@@ -1,6 +1,11 @@
 import BaseHttpException from "./BaseHttpException";
 
 export default class ForeignKeyConstraintException extends BaseHttpException {
+  static fromError(e: Error, CONFLICT: number, code: string, href: string): any {
+    const error = new ForeignKeyConstraintException(e.message, CONFLICT, code, href);
+    error.stack = e.stack;
+    return error;
+  }
   public constructor(
     message: string,
     status: number,

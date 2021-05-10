@@ -1,6 +1,11 @@
 import BaseHttpException from "./BaseHttpException";
 
 export default class BadRequestException extends BaseHttpException {
+  static fromError(e: Error, BAD_REQUEST: number, code: string, href: string): any {
+    const error = new BadRequestException(e.message, BAD_REQUEST, code, href);
+    error.stack = e.stack;
+    return error;
+  }
   public constructor(
     message: string,
     status: number,

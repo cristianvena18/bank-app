@@ -9,10 +9,13 @@ class Server {
   private app: App;
 
   constructor() {
-    apm.start({
-      serviceName: 'Server',
-      serverUrl: "http://elastic:changeme@apm-server:8200",
-    })
+    if (process.env.NODE_ENV === 'production') {
+      apm.start({
+        serviceName: 'Server',
+        serverUrl: "http://elastic:changeme@apm-server:8200",
+      })
+    }
+    
     this.express = express();
     this.app = new App();
     this.app.upServer(this.express);

@@ -1,16 +1,42 @@
 import Dinero from "dinero.js";
 import { Currency } from "./Currency";
 
-export class Money extends Dinero {
+export class Money {
   private amount: string;
-  private currency: string;
+  private currency: Currency;
 
   constructor(amount: number, currency: Currency) {
-    super({ amount, currency: currency.value });
+    // super({ amount, currency: currency.value });
+    this.currency = currency;
+    this.amount = String(amount);
   }
 
   public getAmount() {
-    return this.currency;
+    return this.amount;
+  }
+
+  public isGreaterThanOrEquals(amount: Money) {
+    const comparators = Dinero.normalizePrecision([
+      Dinero(this.toPrimitives()),
+      Dinero(amount.toPrimitives())
+    ])
+
+    return comparators[0].getAmount() >= comparators[1].getAmount()
+  }
+
+  public substract(amount: Money): Money {
+    return new Money(Dinero(this.toPrimitives()).subtract(Dinero(amount.toPrimitives())).getAmount(), this.currency);
+  }
+
+  public add(amount: Money): Money {
+    return new Money(Dinero(this.toPrimitives()).add(Dinero(amount.toPrimitives())).getAmount(), this.currency);
+  }
+
+  public toPrimitives(): Object {
+    return {
+      amount: Number(this.amount),
+      currency: this.currency.value
+    }
   }
 
   public getCurrency() {

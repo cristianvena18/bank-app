@@ -23,6 +23,7 @@ import ForeignKeyConstraintFailed from "../../Application/Exceptions/ForeignKeyC
 import RelatedEntitiesConstraintFailed from "../../Application/Exceptions/RelatedEntitiesConstraintFailed";
 import CannotPasswordMatch from "../../Application/Exceptions/CannotPasswordMatch";
 import EmailAlreadyExist from "../../Application/Exceptions/EmailAlreadyExist";
+import { InvalidTransfer } from "../../Domain/Exceptions/InvalidTransfer";
 
 const reportExceptions = (constructor) => {
   let list = [
@@ -51,85 +52,88 @@ export const logErrors = (
 };
 
 export const mapApplicationToHTTPErrors = async (
-  e: any,
+  e: Error,
   _request: Request,
   _response: Response,
   next: NextFunction
 ) => {
   switch (e.constructor) {
     case EntityNotFoundException:
-      e = new NotFoundException(
-        e.message,
-        HTTP_CODES.NOT_FOUND,
-        codeErrors.HTTP.NOT_FOUND.code,
-        codeErrors.HTTP.NOT_FOUND.href
+      return next(
+        NotFoundException.fromError(
+          e,
+          HTTP_CODES.NOT_FOUND,
+          codeErrors.HTTP.NOT_FOUND.code,
+          codeErrors.HTTP.NOT_FOUND.href
+        )
       );
-      return next(e);
     case ValidationException:
       if (JSON.parse(e.message).type === "BadRequestException") {
-        e = new BadRequestException(
-          e.message,
+        return next(BadRequestException.fromError(
+          e,
           HTTP_CODES.BAD_REQUEST,
           codeErrors.HTTP.BAD_REQUEST.code,
           codeErrors.HTTP.BAD_REQUEST.href
-        );
-        return next(e);
+        ));
       }
-      e = new UnprocessableEntityException(
-        e.message,
+      return next(UnprocessableEntityException.fromError(
+        e,
         HTTP_CODES.UNPROCESSABLE_ENTITY,
         codeErrors.HTTP.UNPROCESSABLE_ENTITY.code,
         codeErrors.HTTP.UNPROCESSABLE_ENTITY.href
-      );
+      ));
       return next(e);
     case AuthorizationFailed:
-      e = new AuthorizationException(
-        e.message,
+      return next(AuthorizationException.fromError(
+        e,
         HTTP_CODES.UNAUTHORIZED,
         codeErrors.HTTP.UNAUTHORIZED.code,
         codeErrors.HTTP.UNAUTHORIZED.href
-      );
+      ));
       return next(e);
     case CannotPasswordMatch:
-      e = new AuthorizationException(
-        e.message,
+      return next(AuthorizationException.fromError(
+        e,
         HTTP_CODES.BAD_REQUEST,
         codeErrors.HTTP.BAD_REQUEST.code,
         codeErrors.HTTP.BAD_REQUEST.href
-      );
-      return next(e);
+      ));
     case EmailAlreadyExist:
-      e = new BadRequestException(
-        e.message,
+      return next(BadRequestException.fromError(
+        e,
         HTTP_CODES.BAD_REQUEST,
         codeErrors.HTTP.BAD_REQUEST.code,
         codeErrors.HTTP.BAD_REQUEST.href
-      );
-      return next(e);
+      ));
     case AuthenticationFailed:
-      e = new AuthenticationException(
-        e.message,
+      return next(AuthenticationException.fromError(
+        e,
         HTTP_CODES.FORBIDDEN,
         codeErrors.HTTP.FORBIDDEN.code,
         codeErrors.HTTP.FORBIDDEN.href
-      );
-      return next(e);
+      ));
     case ForeignKeyConstraintFailed:
-      e = new ForeignKeyConstraintException(
-        e.message,
+      return next(ForeignKeyConstraintException.fromError(
+        e,
         HTTP_CODES.CONFLICT,
         codeErrors.HTTP.FOREIGN_KEY_CONSTRAINT_ERROR.code,
         codeErrors.HTTP.FOREIGN_KEY_CONSTRAINT_ERROR.href
-      );
-      return next(e);
+      ));
+    case InvalidTransfer:
+      return next(
+        BadRequestException.fromError(
+          e,
+          HTTP_CODES.CONFLICT,
+          codeErrors.HTTP.BAD_REQUEST.code,
+          codeErrors.HTTP.BAD_REQUEST.href
+        ));
     default:
-      e = new InternalErrorException(
-        e.message,
+      return next(InternalErrorException.fromError(
+        e,
         HTTP_CODES.INTERNAL_ERROR,
         codeErrors.HTTP.INTERNAL_ERROR.code,
         codeErrors.HTTP.INTERNAL_ERROR.href
-      );
-      return next(e);
+      ));
   }
 };
 
@@ -143,14 +147,14 @@ export const execute = async (
     return response
       .status(e.status)
       .json(error(e.name, JSON.parse(e.message), e.type, e.href));
-  } catch (e) {
+  } catch (_e) {
     return response.status(500).json(
       error(
         e.name,
         JSON.parse(
           JSON.stringify({
             errors: {
-              default: { field: "default", message: "default" },
+              default: { field: "default", message: e.message },
             },
           })
         ),

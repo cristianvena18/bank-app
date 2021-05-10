@@ -25,4 +25,8 @@ export default class DatabaseConnection {
       throw new Error("Not found connection db with current credentials");
     }
   }
+
+  static create() {
+    return new DatabaseConnection();
+  }
 }

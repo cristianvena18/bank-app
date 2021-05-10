@@ -10,6 +10,8 @@ import { AccountType } from "./AccountType";
 import { AccountStatus } from "./AccountStatus";
 import { AccountOpened } from "../../Events/AccountOpened";
 import { Uuid } from "../../ValueObjects/Uuid";
+import { AmountSubstracted } from "../../Events/AmountSubstracted";
+import { AmountAdded } from "../../Events/AmountAdded";
 
 export class Account extends AggregateRoot {
   private id: AccountUuid;
@@ -96,6 +98,24 @@ export class Account extends AggregateRoot {
 
   getCurrency() {
     return this.currency;
+  }
+
+  public haveBalance(amount: Money) {
+    return this.balance.isGreaterThanOrEquals(amount);
+  }
+
+  public isAvailable() {
+    return this.status.value === AccountStatus.ACCOUNT_STATUS.OPEN;
+  }
+
+  public substract(amount: Money) {
+    this.balance = this.balance.substract(amount);
+    this.record(new AmountSubstracted(amount, this.id, this.number));
+  }
+
+  public add(amount: Money) {
+    this.balance = this.balance.add(amount);
+    this.record(new AmountAdded(amount, this.id, this.number));
   }
 
   static create(

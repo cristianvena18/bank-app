@@ -1,6 +1,11 @@
 import BaseHttpException from "./BaseHttpException";
 
 export default class AuthorizationException extends BaseHttpException {
+  static fromError(e: Error, UNAUTHORIZED: number, code: string, href: string): any {
+    const error = new AuthorizationException(e.message, UNAUTHORIZED, code, href);
+    error.stack = e.stack;
+    return error;
+  }
   public constructor(
     message: string,
     status: number,

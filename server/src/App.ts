@@ -27,11 +27,11 @@ export default class App {
     if (result.error) {
       throw new Error(`Environment variables not configured, aborting`);
     }
+    await App.createDatabaseConnection();
 
     this.setMiddlewares();
     this.setRoutes();
     this.setErrorHandler();
-    await App.createDatabaseConnection();
   }
 
   public getApp() {

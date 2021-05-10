@@ -1,3 +1,6 @@
+import MakeTransferHandler from '../../Application/Commands/Handler/Transfer/MakeHandler';
+import MakeTransferAdapter from '../../Presentation/Http/Adapters/Transfer/MakeAdapter';
+import MakeTransferAction from '../../Presentation/Http/Actions/Transfer/MakeAction';
 import GetCustomerHandler from "../../Application/Queries/Handler/Customer/GetHandler";
 import GetCustomerAdapter from "../../Presentation/Http/Adapters/Customer/GetAdapter";
 import GetCustomerAction from "../../Presentation/Http/Actions/Customer/GetAction";
@@ -27,6 +30,7 @@ import RabbitMqConfig, {
 } from "../EventBus/Providers/RabbitMqConfig";
 import { CustomerRoutes } from "../../Presentation/Http/Routes/customer";
 
+
 const DIContainer = new Container();
 
 DIContainer.bind(Router).toSelf();
@@ -34,14 +38,17 @@ DIContainer.bind(AccountRoutes).toSelf();
 DIContainer.bind(CustomerRoutes).toSelf();
 
 //Actions
+DIContainer.bind(MakeTransferAction).toSelf();
 DIContainer.bind(GetCustomerAction).toSelf();
 DIContainer.bind(StoreAccountAction).toSelf();
 
 //Adapters
+DIContainer.bind(MakeTransferAdapter).toSelf();
 DIContainer.bind(GetCustomerAdapter).toSelf();
 DIContainer.bind(StoreAccountAdapter).toSelf();
 
 //Handlers
+DIContainer.bind(MakeTransferHandler).toSelf();
 DIContainer.bind(GetCustomerHandler).toSelf();
 DIContainer.bind(StoreAccountHandler).toSelf();
 
@@ -75,3 +82,6 @@ DIContainer.bind<RabbitMqConfig>(INTERFACES.RabbitMqConfig).toConstantValue(
 );
 
 export default DIContainer;
+
+
+

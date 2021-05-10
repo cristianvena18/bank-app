@@ -1,6 +1,4 @@
 import StoreCommand from "../../../Commands/Command/Account/StoreCommand";
-import { injectable, inject } from "inversify";
-import { INTERFACES } from "../../../../Infrastructure/DI/interfaces.types";
 import { AccountRepository } from "../../../../Domain/Interfaces/Repositories/AccountRepository";
 import { Account } from "../../../../Domain/Entities/Account";
 import EntityNotFoundException from "../../../Exceptions/EntityNotFoundException";
@@ -9,7 +7,6 @@ import { BranchRepository } from "../../../../Domain/Interfaces/Repositories/Bra
 import { EmployeeRepository } from "../../../../Domain/Interfaces/Repositories/EmployeeRepository";
 import { EventBus } from "../../../../Domain/Interfaces/EventBus";
 
-@injectable()
 class StoreHandler {
   private accountRepository: AccountRepository;
   private customerRepository: CustomerRepository;
@@ -18,13 +15,11 @@ class StoreHandler {
   private eventBus: EventBus;
 
   public constructor(
-    @inject(INTERFACES.AccountRepository) accountRepository: AccountRepository,
-    @inject(INTERFACES.CustomerRepository)
+    accountRepository: AccountRepository,
     customerRepository: CustomerRepository,
-    @inject(INTERFACES.BranchRepository) branchRepository: BranchRepository,
-    @inject(INTERFACES.EmployeeRepository)
+    branchRepository: BranchRepository,
     employeeRepository: EmployeeRepository,
-    @inject(INTERFACES.EventBus) eventBus: EventBus
+    eventBus: EventBus
   ) {
     this.accountRepository = accountRepository;
     this.customerRepository = customerRepository;

@@ -12,6 +12,10 @@ export class Currency extends EnumValueObject<string> {
         super(value, Object.values(Currency.VALID_VALUES));
     }
 
+    public isSameCurrency(anotherCurrency: Currency) {
+        return this.value === anotherCurrency.value;
+    }
+
     protected throwErrorForInvalidValue(value: string): void {
         throw new InvalidCurrency()
     }

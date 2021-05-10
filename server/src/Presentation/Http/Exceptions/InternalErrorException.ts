@@ -1,6 +1,11 @@
 import BaseHttpException from "./BaseHttpException";
 
 export default class InternalErrorException extends BaseHttpException {
+  static fromError(e: Error, INTERNAL_ERROR: number, code: string, href: string): any {
+    const error = new InternalErrorException(e.message, INTERNAL_ERROR, code, href);
+    error.stack = e.stack;
+    return error;
+  }
   public constructor(
     message: string,
     status: number,

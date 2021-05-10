@@ -1,72 +1,155 @@
-version: '3.3'
-
 services:
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    configs:
-      - source: elastic_config
+    elasticsearch:
+    container_name: elasticsearch
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    hostname: elastic
+    volumes:
+      - type: bind
+        source: ./elasticsearch/config/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: elasticsearch
+        target: /usr/share/elasticsearch/data
+    ports:
+      - "9199:9200"
+      - "9299:9300"
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ES_JAVA_OPTS: "-Xmx255m -Xms256m"
       ELASTIC_PASSWORD: changeme
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
-      # Force publishing on the 'elk' overlay.
-      network.publish_host: _eth0_
     networks:
       - elk
-    deploy:
-      mode: replicated
-      replicas: 1
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:7.12.1
-    ports:
-      - "5044:5044"
-      - "5000:5000"
-      - "9600:9600"
-    configs:
-      - source: logstash_config
+    container_name: logstash
+    build:
+      context: logstash/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./logstash/config/logstash.yml
         target: /usr/share/logstash/config/logstash.yml
-      - source: logstash_pipeline
-        target: /usr/share/logstash/pipeline/logstash.conf
+        read_only: true
+      - type: bind
+        source: ./logstash/pipeline
+        target: /usr/share/logstash/pipeline
+        read_only: true
+    ports:
+      - "5043:5044"
+      - "4999:5000/tcp"
+      - "4999:5000/udp"
+      - "9599:9600"
     environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      LS_JAVA_OPTS: "-Xmx255m -Xms256m"
     networks:
       - elk
-    deploy:
-      mode: replicated
-      replicas: 1
+    depends_on:
+      - elasticsearch
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.12.1
-    ports:
-      - "5601:5601"
-    configs:
-      - source: kibana_config
+    container_name: kibana
+    hostname: kibana
+    build:
+      context: kibana/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./kibana/config/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    ports:
+      - "5600:5601"
     networks:
       - elk
-    deploy:
-      mode: replicated
-      replicas: 1
+    depends_on:
+      - elasticsearch
 
-configs:
+  apm-server:
+    container_name: apm
+    build:
+      context: extensions/apm-server/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    command:
+        # Disable strict permission checking on 'apm-server.yml' configuration file
+        # https://www.elastic.co/guide/en/beats/libbeat/current/config-file-permissions.html
+      - --strict.perms=false
+    volumes:
+      - type: bind
+        source: ./extensions/apm-server/config/apm-server.yml
+        target: /usr/share/apm-server/apm-server.yml
+        read_only: true
+    ports:
+      - '8199:8200'
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
 
-  elastic_config:
-    file: ./elasticsearch/config/elasticsearch.yml
-  logstash_config:
-    file: ./logstash/config/logstash.yml
-  logstash_pipeline:
-    file: ./logstash/pipeline/logstash.conf
-  kibana_config:
-    file: ./kibana/config/kibana.yml
+  metricbeat:
+    container_name: metricbeats
+    build:
+      context: extensions/metricbeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    # Run as 'root' instead of 'metricbeat' (uid 999) to allow reading
+    # 'docker.sock' and the host's filesystem.
+    user: root
+    command:
+        # Log to stderr.
+      - -e
+        # Disable config file permissions checks. Allows mounting
+        # 'config/metricbeat.yml' even if it's not owned by root.
+        # see: https://www.elastic.co/guide/en/beats/libbeat/current/config-file-permissions.html
+      - --strict.perms=false
+        # Mount point of the host’s filesystem. Required to monitor the host
+        # from within a container.
+      - --system.hostfs=/hostfs
+    volumes:
+      - type: bind
+        source: ./extensions/metricbeat/config/metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
+        read_only: true
+      - type: bind
+        source: /
+        target: /hostfs
+        read_only: true
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /hostfs/sys/fs/cgroup
+        read_only: true
+      - type: bind
+        source: /proc
+        target: /hostfs/proc
+        read_only: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
 
-networks:
-  elk:
-    driver: overlay
+  filebeat:
+    container_name: filebeat
+    image: docker.elastic.co/beats/filebeat:6.12.1
+    environment:
+      - "ELASTIC_PASSWORD=changeme"
+    user: root
+    volumes:
+      - './var/filebeat/log/:/var/log/:ro'
+      - './var/filebeat/docker.sock:/var/run/docker.sock'
+      - './var/logs/:/var/lib/docker/containers/logs:ro'
+      - './etc/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml'
+    command: ["--strict.perms=false"]
+    networks:
+      - elk

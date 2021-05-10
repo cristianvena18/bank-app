@@ -1,6 +1,12 @@
 import BaseHttpException from "./BaseHttpException";
 
 export default class UnprocessableEntityException extends BaseHttpException {
+  static fromError(e: Error, UNPROCESSABLE_ENTITY: number, code: string, href: string): any {
+    const error = new UnprocessableEntityException(e.message, UNPROCESSABLE_ENTITY, code, href);
+    error.stack = e.stack;
+    return error;
+  }
+  
   public constructor(
     message: string,
     status: number,
