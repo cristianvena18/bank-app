@@ -3,8 +3,9 @@ pipeline {
     stages {
         stage('Build') { 
             steps {
-               	sh 'cd server && npm install'
-		sh 'cd server && npm run tsc'
+		sh 'cd server'
+               	sh 'npm install'
+		sh 'yarn tsc'
 		echo 'Hola build'
             }
         }
