@@ -3,14 +3,14 @@ pipeline {
     stages {
         stage('Build') { 
             steps {
-               	sh 'cd server && npm run install'
+               	sh 'cd server && npm install'
 		sh 'cd server && npm run tsc'
 		echo 'Hola build'
             }
         }
         stage('Test') { 
             steps {
-                sh 'npm run test'
+//                sh 'npm run test'
 		echo 'Hola test'
             }
         }
