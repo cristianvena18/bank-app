@@ -3,13 +3,13 @@ pipeline {
     stages {
         stage('Build') { 
             steps {
-               	npm run install
-		npm run tsc
+               	sh 'npm run install'
+		sh 'npm run tsc'
             }
         }
         stage('Test') { 
             steps {
-                npm run test
+                sh 'npm run test'
             }
         }
         stage('Deploy') { 
