@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Deploy') { 
             steps {
-                pm2 start dist/server.js --name backend
+                # pm2 start dist/server.js --name backend
             }
         }
     }
