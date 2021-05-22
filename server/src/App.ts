@@ -66,8 +66,9 @@ export default class App {
   }
 
   private setErrorHandler(): void {
-    this.app.use(errorHandler.mapApplicationToHTTPErrors);
     this.app.use(errorHandler.logErrors);
+    this.app.use(errorHandler.mapApplicationToHTTPErrors);
+    this.app.use(errorHandler.reportError);
     this.app.use(errorHandler.execute);
   }
 }

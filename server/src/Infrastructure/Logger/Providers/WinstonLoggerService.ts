@@ -1,8 +1,12 @@
 import { inject, injectable } from "inversify";
 import { LoggerService } from "../../../Domain/Interfaces/Services/LoggerService";
-import { createLogger, format, Logger, transports } from "winston";
+import winston, { createLogger, format, Logger, transports } from "winston";
 import { LogLevels } from "../../../Domain/Enums/LogLevels";
 import LogStash from 'winston3-logstash-transport'
+import { parse } from "stack-trace";
+import path from 'path';
+import { ElasticsearchTransport } from "winston-elasticsearch";
+const packageInfo = require(path.join(process.cwd(), 'package.json'));
 
 /**
  * A simple logger that allow multiple transports
@@ -16,15 +20,16 @@ export class WinstonLoggerService implements LoggerService {
     return JSON.stringify({
       name: 'Log',
       level: info.level,
-      message: info.message,
+      message: info,
+      version: packageInfo.version,
       timestamp: date
-    });
+    }, undefined, 2);
   });
 
   public constructor() {
     this.logger = createLogger({
       format: this.logFormatCommon,
-      defaultMeta: { service: "user-service" },
+      defaultMeta: { version: packageInfo.version, service: packageInfo.name },
       transports: [
         //
         // - Write to all loggers with level `info` and below to `combined.logger`
@@ -32,7 +37,8 @@ export class WinstonLoggerService implements LoggerService {
         //
         new transports.File({ filename: "logs/error.log", level: "error" }),
         new transports.File({ filename: "logs/info.log" }),
-        new LogStash({mode: 'udp', host: 'logstash', port: '5044', format: format.logstash() })
+        new ElasticsearchTransport({ level: 'info', clientOpts: { node: process.env.ELASTIC_URL } })
+        //   new LogStash({ mode: 'udp', host: 'logstash', port: '5044', format: format.logstash() })
       ],
     });
 
@@ -58,7 +64,7 @@ export class WinstonLoggerService implements LoggerService {
   }
 
   public error(error: Error): void {
-    this.logger.error(error);
+    this.logger.error({ ...error, message: error.message, stack: parse(error)[0] });
   }
 
   public report(level: LogLevels, message: string): void {

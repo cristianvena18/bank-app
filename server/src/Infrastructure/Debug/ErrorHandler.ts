@@ -40,16 +40,23 @@ export const logErrors = (
   _response: Response,
   next: NextFunction
 ) => {
+  // console.log(e);
   const logger = DIContainer.get<LoggerService>(INTERFACES.LoggerService);
 
-  if (reportExceptions(e.name)) {
-    logger.report(LogLevels.ERROR, e.stack);
-  } else {
-    logger.log(LogLevels.ERROR, e.stack);
-  }
+  logger.error(e);
 
   return next(e);
 };
+
+export const reportError = (e: any, request: Request, response: Response, next: NextFunction) => {
+  const logger = DIContainer.get<LoggerService>(INTERFACES.LoggerService);
+
+  if (reportExceptions(e.name)) {
+    logger.report(LogLevels.ERROR, e);
+  }
+
+  return next(e);
+}
 
 export const mapApplicationToHTTPErrors = async (
   e: Error,
