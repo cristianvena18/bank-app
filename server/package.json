@@ -7,6 +7,7 @@
       "make:usecase": "node ./commands/generators",
       "start": "nodemon -e ts --exec \"yarn run dev:transpile\"",
       "dev:transpile": "tsc && node --unhandled-rejections=strict --inspect=0.0.0.0 dist/server.js",
+      "build": "yarn tsc",
       "prettier:run": "yarn prettier --write src/**/*.ts",
       "make:migration": "yarn typeorm migration:create -d ./src/Infrastructure/Persistence/Migrations -n",
       "test": "exit 0"
