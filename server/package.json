@@ -9,7 +9,7 @@
       "dev:transpile": "tsc && node --unhandled-rejections=strict --inspect=0.0.0.0 dist/server.js",
       "prettier:run": "yarn prettier --write src/**/*.ts",
       "make:migration": "yarn typeorm migration:create -d ./src/Infrastructure/Persistence/Migrations -n",
-      "CI:test": "exit 0"
+      "test": "exit 0"
    },
    "dependencies": {
       "@types/dinero.js": "^1.6.5",
