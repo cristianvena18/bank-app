@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { Application } from "express";
+import express, { Application } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
@@ -27,11 +27,14 @@ export default class App {
     if (result.error) {
       throw new Error(`Environment variables not configured, aborting`);
     }
+    const logger = container.get('logger');
     await App.createDatabaseConnection();
 
     this.setMiddlewares();
     this.setRoutes();
     this.setErrorHandler();
+
+    logger.info("App started!");
   }
 
   public getApp() {
@@ -42,8 +45,8 @@ export default class App {
     this.app.use(cookieParser());
     this.app.use(cors());
     this.app.use(morgan("dev"));
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: false }));
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: false }));
     this.app.use(helmet());
   }
 

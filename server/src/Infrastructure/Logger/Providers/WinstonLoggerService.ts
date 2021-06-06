@@ -37,8 +37,8 @@ export class WinstonLoggerService implements LoggerService {
         //
         new transports.File({ filename: "logs/error.log", level: "error" }),
         new transports.File({ filename: "logs/info.log" }),
-        new ElasticsearchTransport({ level: 'info', clientOpts: { node: process.env.ELASTIC_URL } })
-        //   new LogStash({ mode: 'udp', host: 'logstash', port: '5044', format: format.logstash() })
+        //  new ElasticsearchTransport({ level: 'info', clientOpts: { node: process.env.ELASTIC_URL } }),
+        new LogStash({ mode: 'udp', host: '127.0.0.1', port: '28777' })
       ],
     });
 
