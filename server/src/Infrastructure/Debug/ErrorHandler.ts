@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, response, Response } from "express";
 import NotFoundException from "../../Presentation/Http/Exceptions/NotFoundException";
 import InternalErrorException from "../../Presentation/Http/Exceptions/InternalErrorException";
 import BadRequestException from "../../Presentation/Http/Exceptions/BadRequestException";
@@ -24,6 +24,7 @@ import RelatedEntitiesConstraintFailed from "../../Application/Exceptions/Relate
 import CannotPasswordMatch from "../../Application/Exceptions/CannotPasswordMatch";
 import EmailAlreadyExist from "../../Application/Exceptions/EmailAlreadyExist";
 import { InvalidTransfer } from "../../Domain/Exceptions/InvalidTransfer";
+import { parse } from 'stack-trace';
 
 const reportExceptions = (constructor) => {
   let list = [
@@ -36,14 +37,15 @@ const reportExceptions = (constructor) => {
 
 export const logErrors = (
   e: any,
-  _request: Request,
-  _response: Response,
+  request: Request,
+  response: Response,
   next: NextFunction
 ) => {
   // console.log(e);
   const logger = DIContainer.get<LoggerService>(INTERFACES.LoggerService);
-
-  logger.error(e);
+  logger.error({ ...e, body: request.body, headers: request.headers, query: request.query });
+  // @ts-ignore
+  logger.report(LogLevels.ERROR, { error: { message: e.message, stack: parse(e)[0] }, body: request.body, headers: request.headers, query: request.query });
 
   return next(e);
 };

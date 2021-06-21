@@ -1,0 +1,12 @@
+{
+  "name": "Log",
+  "level": "info",
+  "message": {
+    "message": "App started!",
+    "level": "info",
+    "version": "1.0.0",
+    "service": "server"
+  },
+  "version": "1.0.0",
+  "timestamp": "2021-06-21T21:00:20.856Z"
+}

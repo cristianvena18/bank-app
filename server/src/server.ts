@@ -3,6 +3,7 @@ import "reflect-metadata";
 import App from "./App";
 import express, { Application } from "express";
 import apm from 'elastic-apm-node'
+import bundle, { middleware } from './Infrastructure/Metrics/index';
 
 class Server {
   private express: Application;
@@ -15,8 +16,9 @@ class Server {
         serverUrl: "http://elastic:changeme@apm-server:8200",
       })
     }
-    
     this.express = express();
+    this.express.use(bundle);
+    this.express.use(middleware);
     this.app = new App();
     this.app.upServer(this.express);
 

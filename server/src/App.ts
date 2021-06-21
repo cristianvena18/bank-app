@@ -1,5 +1,4 @@
-import { inject, injectable } from "inversify";
-import bodyParser from "body-parser";
+import { injectable } from "inversify";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application } from "express";
@@ -11,11 +10,14 @@ import DatabaseConnection from "./Infrastructure/Persistence/DatabaseConnection"
 import * as errorHandler from "./Infrastructure/Debug/ErrorHandler";
 import container from "./Infrastructure/DI";
 import { VerificateDomainMiddleware } from "./Presentation/Http/Middlewares/VerificateDomainMiddleware";
+import { LoggerService } from "./Domain/Interfaces/Services/LoggerService";
+import json from 'morgan-json'
 
 @injectable()
 export default class App {
   private app: Application;
   private router: PublicRoutes;
+  private logger: LoggerService;
 
   public async upServer(express: Application) {
     this.app = express;
@@ -27,14 +29,14 @@ export default class App {
     if (result.error) {
       throw new Error(`Environment variables not configured, aborting`);
     }
-    const logger = container.get('logger');
+    this.logger = container.get('logger');
     await App.createDatabaseConnection();
 
     this.setMiddlewares();
     this.setRoutes();
     this.setErrorHandler();
 
-    logger.info("App started!");
+    this.logger.info("App started!");
   }
 
   public getApp() {
@@ -44,7 +46,12 @@ export default class App {
   private setMiddlewares() {
     this.app.use(cookieParser());
     this.app.use(cors());
-    this.app.use(morgan("dev"));
+    const format = json({
+      short: ':method :url :status',
+      length: ':res[content-length]',
+      'response-time': ':response-time ms'
+    });
+    this.app.use(morgan(format, { stream: this.logger.getStream() }));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
     this.app.use(helmet());

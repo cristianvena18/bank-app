@@ -29,6 +29,8 @@ import RabbitMqConfig, {
   RabbitMqConnectionConfig,
 } from "../EventBus/Providers/RabbitMqConfig";
 import { CustomerRoutes } from "../../Presentation/Http/Routes/customer";
+import { ReporterService } from '../../Domain/Interfaces/Services/ReporterService';
+import SlackReporter from '../Logger/Reporters/SlackReporter';
 
 
 const DIContainer = new Container();
@@ -59,6 +61,7 @@ DIContainer.bind<ValidationService>(INTERFACES.IValidation).to(
 DIContainer.bind<LoggerService>(INTERFACES.LoggerService).to(
   WinstonLoggerService
 );
+DIContainer.bind<ReporterService>(INTERFACES.ReporterService).to(SlackReporter);
 
 //Events
 DIContainer.bind<EventBus>(INTERFACES.EventBus).to(RabbitMqEventbus);

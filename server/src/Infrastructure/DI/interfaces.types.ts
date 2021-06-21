@@ -9,4 +9,5 @@ export const INTERFACES = {
   EventBus: Symbol.for("EventBus"),
   RabbitMqConfig: Symbol.for("RabbitMqConfig"),
   TokenService: Symbol.for("TokenService"),
+  ReporterService: Symbol.for('ReporterService')
 };

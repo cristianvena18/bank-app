@@ -11,9 +11,11 @@ import { RedisConnectionFactory } from "../../Cache/ConnectionFactory";
 import { RedisCacheServiceProvider } from "../../Cache/Providers/RedisCacheServiceProvider";
 import { TransferService } from "../../../Domain/Services/TransferService";
 import { MysqlTransactionHandler } from "../../Persistence/Config/MysqlTransactionHandler";
+import SlackReporter from '../../Logger/Reporters/SlackReporter';
 
 export const registerConfig = (container: ContainerBuilder) => {
-  container.register("logger", WinstonLoggerService);
+  container.register('reporter', SlackReporter)
+  container.register("logger", WinstonLoggerService, [new Reference('reporter')]);
   container.register("validationService", JoiValidationService);
 
   const transactionDefinition = new Definition();
